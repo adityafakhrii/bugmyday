@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="DebugMyDay - Bagikan momen menakjubkan Anda dan terhubung dengan orang lain" />
+    <meta name="theme-color" content="#3b82f6" />
+    
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="DebugMyDay" />
+    <link rel="apple-touch-icon" href="/icons/icon.png" />
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin="" />
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="./src/styles/styles.css" />
+    
+    <title>DebugMyDay - Bagikan Momen Anda</title>
+    <link rel="icon" type="image/png" href="/icons/icon.png" />
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="app-header" role="banner">
+        <a href="#" class="skip-link">Langsung ke konten utama</a>
+        
+        <div class="header-inner">
+          <a href="#/" class="app-brand" aria-label="Beranda DebugMyDay">
+            <div class="brand-icon"><i class="fas fa-bug"></i></div>
+            <span>DebugMyDay</span>
+          </a>
+          
+          <nav class="app-nav" role="navigation" aria-label="Navigasi utama">
+            <ul class="nav-list">
+              <li class="nav-item">
+                <a href="#/home" class="nav-link">
+                  <i class="fas fa-home"></i>
+                  <span>Beranda</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#/add" class="nav-link">
+                  <i class="fas fa-plus"></i>
+                  <span>Tambah Cerita</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#/favorites" class="nav-link">
+                  <i class="fas fa-heart"></i>
+                  <span>Favorit</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#/about" class="nav-link">
+                  <i class="fas fa-info-circle"></i>
+                  <span>Tentang</span>
+                </a>
+              </li>
+              <li class="nav-item" id="loginNavItem" style="display: none;">
+                <a href="#/auth" class="nav-link login-nav-link">
+                  <i class="fas fa-sign-in-alt"></i>
+                  <span>Masuk</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+          
+          <div class="user-actions">
+            <button class="logout-btn" id="logoutBtn" aria-label="Keluar" style="display: none;">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Keluar</span>
+            </button>
+            <button class="notification-btn" id="notificationBtn" aria-label="Pengaturan notifikasi" style="display: none;">
+              <i class="fas fa-bell"></i>
+              <span>Notifikasi</span>
+            </button>
+            <button class="menu-button" id="menuButton" aria-label="Buka menu" aria-expanded="false">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+        </div>
+
+        <nav class="nav-drawer" id="navDrawer" role="navigation" aria-label="Navigasi mobile">
+          <div class="drawer-header">
+            <a href="#/" class="app-brand">
+              <div class="brand-icon"><i class="fas fa-bug"></i></div>
+              <span>DebugMyDay</span>
+            </a>
+          </div>
+          <ul class="drawer-list">
+            <li class="drawer-item">
+              <a href="#/home" class="drawer-link">
+                <i class="fas fa-home"></i>
+                <span>Beranda</span>
+              </a>
+            </li>
+            <li class="drawer-item">
+              <a href="#/add" class="drawer-link">
+                <i class="fas fa-plus"></i>
+                <span>Tambah Cerita</span>
+              </a>
+            </li>
+            <li class="drawer-item">
+              <a href="#/favorites" class="drawer-link">
+                <i class="fas fa-heart"></i>
+                <span>Favorit</span>
+              </a>
+            </li>
+            <li class="drawer-item">
+              <a href="#/about" class="drawer-link">
+                <i class="fas fa-info-circle"></i>
+                <span>Tentang</span>
+              </a>
+            </li>
+            <li class="drawer-item" id="loginDrawerItem" style="display: none;">
+              <a href="#/auth" class="drawer-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Masuk</span>
+              </a>
+            </li>
+            <li class="drawer-item">
+              <button class="drawer-link" id="drawerLogoutBtn" style="background: none; border: none; width: 100%; text-align: left; display: none;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Keluar</span>
+              </button>
+            </li>
+            <li class="drawer-item">
+              <button class="drawer-link" id="drawerNotificationBtn" style="background: none; border: none; width: 100%; text-align: left; display: none;">
+                <i class="fas fa-bell"></i>
+                <span>Pengaturan Notifikasi</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </header>
+
+      <main class="app-main" id="main-content" role="main" tabindex="-1">
+      </main>
+
+      <footer class="app-footer" role="contentinfo">
+        <div class="footer-content">
+          <p>&copy; 2025 DebugMyDay. Dibuat dengan <i class="fas fa-heart text-red-500"></i> untuk submission Dicoding.</p>
+          <p>
+            <a href="https://dicoding.com" target="_blank" rel="noopener noreferrer">Kunjungi Dicoding</a> |
+            <a href="#/about">Tentang</a>
+          </p>
+        </div>
+      </footer>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
+    
+    <script type="module" src="./src/scripts/index.js"></script>
+  </body>
+</html>

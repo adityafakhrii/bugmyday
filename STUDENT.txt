@@ -1,0 +1,10 @@
+# Dicoding Story SPA
+
+## Student Details
+- Name: Aditya Fakhri Riansyah
+- Course: Belajar Pengembangan Web Intermediate
+
+## Project Information
+- Project Name: Bug My Day
+- Description: Single Page Application for sharing stories with location and photos
+- Live link: http://bugmyday.netlify.app/
