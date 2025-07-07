@@ -145,7 +145,8 @@ class StoryModel {
         throw new Error(responseJson.message);
       }
       
-      await this.triggerStoryNotification(description);
+      // Trigger notification dengan story ID dari response (jika ada)
+      await this.triggerStoryNotification(description, responseJson.data?.id);
 
       return responseJson;
     } catch (error) {

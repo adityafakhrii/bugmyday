@@ -1,8 +1,3 @@
-import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
-import { registerRoute } from 'workbox-routing';
-import { StaleWhileRevalidate, CacheFirst, NetworkFirst } from 'workbox-strategies';
-import { ExpirationPlugin } from 'workbox-expiration';
-
 const STATIC_CACHE_NAME = 'debugmyday-static-v1';
 const DYNAMIC_CACHE_NAME = 'debugmyday-dynamic-v1';
 
@@ -166,68 +161,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-precacheAndRoute(self.__WB_MANIFEST);
-cleanupOutdatedCaches();
-
-registerRoute(
-  ({ url }) => url.origin === 'https://story-api.dicoding.dev',
-  new NetworkFirst({
-    cacheName: 'api-cache',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 100,
-        maxAgeSeconds: 60 * 60 * 24,
-      }),
-    ],
-  })
-);
-
-registerRoute(
-  ({ request }) => request.destination === 'image',
-  new CacheFirst({
-    cacheName: 'images-cache',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 100,
-        maxAgeSeconds: 60 * 60 * 24 * 30,
-      }),
-    ],
-  })
-);
-
-registerRoute(
-  ({ url }) => 
-    url.origin === 'https://fonts.googleapis.com' ||
-    url.origin === 'https://fonts.gstatic.com' ||
-    url.origin === 'https://cdnjs.cloudflare.com' ||
-    url.origin === 'https://unpkg.com',
-  new StaleWhileRevalidate({
-    cacheName: 'external-resources',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 50,
-        maxAgeSeconds: 60 * 60 * 24 * 7,
-      }),
-    ],
-  })
-);
-
-registerRoute(
-  ({ url }) => 
-    url.hostname.includes('tile.openstreetmap.org') ||
-    url.hostname.includes('server.arcgisonline.com') ||
-    url.hostname.includes('basemaps.cartocdn.com'),
-  new CacheFirst({
-    cacheName: 'map-tiles',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 200,
-        maxAgeSeconds: 60 * 60 * 24 * 7,
-      }),
-    ],
-  })
-);
-
+// Handle push notifications
 self.addEventListener('push', (event) => {
   let title = 'DebugMyDay';
   let options = {
@@ -240,11 +174,12 @@ self.addEventListener('push', (event) => {
     data: {
       dateOfArrival: Date.now(),
       primaryKey: 1,
-      url: '/#/home'
+      url: '/#/home',
+      storyId: null
     },
     actions: [
       {
-        action: 'explore',
+        action: 'view',
         title: 'Lihat Cerita',
         icon: '/icons/icon.png'
       },
@@ -262,7 +197,11 @@ self.addEventListener('push', (event) => {
       title = notificationData.title || title;
       options.body = notificationData.options?.body || options.body;
       
-      if (notificationData.options?.url) {
+      // Set URL untuk mengarahkan ke detail cerita jika ada storyId
+      if (notificationData.options?.storyId) {
+        options.data.url = `/#/detail/${notificationData.options.storyId}`;
+        options.data.storyId = notificationData.options.storyId;
+      } else if (notificationData.options?.url) {
         options.data.url = notificationData.options.url;
       }
     } catch (error) {
@@ -275,23 +214,68 @@ self.addEventListener('push', (event) => {
   );
 });
 
+// Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const urlToOpen = event.notification.data?.url || '/';
+  const notificationData = event.notification.data || {};
+  let urlToOpen = notificationData.url || '/';
 
-  if (event.action === 'explore') {
+  // Jika ada storyId, arahkan ke detail cerita
+  if (notificationData.storyId) {
+    urlToOpen = `/#/detail/${notificationData.storyId}`;
+  }
+
+  if (event.action === 'view') {
+    // Action "Lihat Cerita" - buka URL yang sesuai
     event.waitUntil(
-      clients.openWindow(urlToOpen)
+      clients.matchAll({ type: 'window', includeUncontrolled: true })
+        .then((clientList) => {
+          // Cek apakah ada window yang sudah terbuka
+          for (const client of clientList) {
+            if (client.url.includes(self.location.origin) && 'focus' in client) {
+              // Fokus ke window yang sudah ada dan navigasi ke URL yang tepat
+              return client.focus().then(() => {
+                return client.postMessage({
+                  type: 'NAVIGATE_TO',
+                  url: urlToOpen
+                });
+              });
+            }
+          }
+          // Jika tidak ada window yang terbuka, buka window baru
+          if (clients.openWindow) {
+            return clients.openWindow(urlToOpen);
+          }
+        })
     );
   } else if (event.action === 'close') {
+    // Action "Tutup" - tidak melakukan apa-apa
+    return;
   } else {
+    // Default action (klik pada notifikasi) - buka URL yang sesuai
     event.waitUntil(
-      clients.openWindow(urlToOpen)
+      clients.matchAll({ type: 'window', includeUncontrolled: true })
+        .then((clientList) => {
+          for (const client of clientList) {
+            if (client.url.includes(self.location.origin) && 'focus' in client) {
+              return client.focus().then(() => {
+                return client.postMessage({
+                  type: 'NAVIGATE_TO',
+                  url: urlToOpen
+                });
+              });
+            }
+          }
+          if (clients.openWindow) {
+            return clients.openWindow(urlToOpen);
+          }
+        })
     );
   }
 });
 
+// Handle background sync
 self.addEventListener('sync', (event) => {
   if (event.tag === 'background-sync') {
     event.waitUntil(doBackgroundSync());

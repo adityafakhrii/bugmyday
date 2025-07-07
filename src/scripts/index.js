@@ -217,6 +217,15 @@ window.addEventListener('load', () => {
   });
 });
 
+// Listen for messages from service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'NAVIGATE_TO') {
+      window.location.hash = event.data.url.replace('/#', '#');
+    }
+  });
+}
+
 window.addEventListener('online', () => {
   console.log('App is online');
   if (window.location.hash === '#/home' || window.location.hash === '#/') {
