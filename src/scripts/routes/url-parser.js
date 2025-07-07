@@ -1,12 +1,24 @@
 const UrlParser = {
   parseActiveUrlWithCombiner() {
     const url = window.location.hash.slice(1).toLowerCase();
+    
+    // Handle empty hash atau root
+    if (!url || url === '/') {
+      return '/';
+    }
+    
     const splitedUrl = this._urlSplitter(url);
     return this._urlCombiner(splitedUrl);
   },
 
   parseActiveUrlWithoutCombiner() {
     const url = window.location.hash.slice(1).toLowerCase();
+    
+    // Handle empty hash atau root
+    if (!url || url === '/') {
+      return { resource: null, id: null, verb: null };
+    }
+    
     return this._urlSplitter(url);
   },
 

@@ -206,6 +206,12 @@ window.addEventListener('hashchange', () => {
 });
 
 window.addEventListener('load', () => {
+  // Handle kasus ketika tidak ada hash (halaman pertama kali dimuat)
+  if (!window.location.hash) {
+    window.location.hash = '#/home';
+    return;
+  }
+  
   performPageTransition(() => {
     app.renderPage();
     updateUIBasedOnAuth();

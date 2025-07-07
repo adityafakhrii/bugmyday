@@ -24,7 +24,11 @@ class App {
     const page = routes[url];
     
     if (!page) {
-      window.location.hash = '#/not-found';
+      // Render halaman Not Found langsung tanpa mengubah hash
+      const NotFound = (await import('./pages/not-found/not-found-page.js')).default;
+      this._content.innerHTML = await NotFound.render();
+      await NotFound.afterRender();
+      this._updateActiveNavigation('/not-found');
       return;
     }
 

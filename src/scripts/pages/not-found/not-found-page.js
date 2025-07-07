@@ -34,12 +34,22 @@ const NotFound = {
                 <i class="fas fa-plus" aria-hidden="true"></i>
                 Tambah Cerita
               </a>
+              <button id="goBackBtn" class="cta-button secondary" aria-label="Kembali ke halaman sebelumnya">
+                <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                Kembali
+              </button>
             </div>
             
             <div class="not-found-footer">
               <p>
                 <i class="fas fa-lightbulb" aria-hidden="true"></i>
                 Tips: Gunakan menu navigasi di atas untuk menjelajahi aplikasi
+              </p>
+              <p class="not-found-url">
+                <small>
+                  <i class="fas fa-link" aria-hidden="true"></i>
+                  URL yang dicari: <code id="currentUrl"></code>
+                </small>
               </p>
             </div>
           </div>
@@ -49,11 +59,32 @@ const NotFound = {
   },
 
   async afterRender() {
-    // Focus on the main heading for accessibility
+    // Focus pada heading utama untuk aksesibilitas
     const title = document.querySelector('.not-found-title');
     if (title) {
       title.focus();
     }
+
+    // Tampilkan URL yang tidak ditemukan
+    const currentUrlElement = document.getElementById('currentUrl');
+    if (currentUrlElement) {
+      currentUrlElement.textContent = window.location.hash || '/';
+    }
+
+    // Handler untuk tombol kembali
+    const goBackBtn = document.getElementById('goBackBtn');
+    if (goBackBtn) {
+      goBackBtn.addEventListener('click', () => {
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          window.location.hash = '#/home';
+        }
+      });
+    }
+
+    // Log untuk debugging
+    console.log('404 Page rendered for URL:', window.location.hash);
   },
 };
 
